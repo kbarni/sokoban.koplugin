@@ -100,22 +100,19 @@ function Sokoban:startLevel(set_idx, level_num)
 
     self.widget = self:_buildWidget()
     UIManager:show(self.widget)
-    UIManager:setDirty(self.widget, "ui")
+    UIManager:setDirty(self.widget, "ui", self.widget.dimen)
 end
 
 function Sokoban:_buildWidget()
     local sw = Screen:getWidth()
     local sh = Screen:getHeight()
 
-    local title_h  = TitleBar:new{ width = sw, title = "" }:getSize().h
     local toolbar_h = Screen:scaleBySize(60)
-
-    local board_w = sw
-    local board_h = sh - title_h - toolbar_h
+    local icon_size = Screen:scaleBySize(40)
 
     local game = self.game
 
-    -- title bar
+    -- title bar created first so getSize() includes the subtitle line
     local title_bar = TitleBar:new{
         width          = sw,
         title          = self.current_set .. " #" .. self.current_level,
@@ -128,8 +125,12 @@ function Sokoban:_buildWidget()
             self:openSettings()
         end,
     }
+    local title_h = title_bar:getSize().h
 
     -- board widget
+    local board_w = sw
+    local board_h = sh - title_h - toolbar_h
+
     local board = Board:new{
         game        = game,
         width       = board_w,
@@ -143,7 +144,6 @@ function Sokoban:_buildWidget()
     self._title_bar = title_bar
 
     -- toolbar: undo + level select
-    local icon_size = Screen:scaleBySize(40)
     local undo_btn = IconButton:new{
         icon     = "back.top",
         width    = icon_size,
@@ -177,12 +177,15 @@ function Sokoban:_buildWidget()
     }
     self._status_text_widget = toolbar[6] -- keep ref for updates
 
+    local content_h = title_h + board_h + icon_size
+    local gap = sh - content_h
+
     local layout = VerticalGroup:new{
         align = "left",
         title_bar,
         board,
-        VerticalSpan:new{ width = math.max(0, toolbar_h - icon_size) / 2 },
         toolbar,
+        gap > 0 and VerticalSpan:new{ height = gap } or nil,
     }
 
     local frame = FrameContainer:new{
@@ -214,7 +217,7 @@ function Sokoban:_onMove(dr, dc)
 end
 
 function Sokoban:_refresh()
-    UIManager:setDirty(self.widget, "ui")
+    UIManager:setDirty(self.widget, "ui", self.widget.dimen)
 end
 
 function Sokoban:_onSolved()
@@ -236,7 +239,7 @@ function Sokoban:_onSolved()
     self:_saveSettings()
 
     -- full refresh so e-ink ghosts clear
-    UIManager:setDirty(self.widget, "full")
+    UIManager:setDirty(self.widget, "ui")
 
     local msg = _("Solved!") .. "\n" ..
         _("Moves: ") .. self.game.moves .. "  " .. _("Pushes: ") .. self.game.pushes

@@ -68,6 +68,7 @@ function SettingsWidget:init()
     local playing      = self.playing_level or self.current_level
     local play_solved  = ((self.best_moves or {})[self.current_set] or {})[playing]
     local at_frontier  = (playing >= fr) and not play_solved and (playing < total)
+                         and (self.current_level == playing)
 
     local level_nav = ButtonTable:new{
         width   = self.width - Size.padding.large * 2,

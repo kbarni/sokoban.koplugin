@@ -19,17 +19,16 @@ local SettingsWidget = InputContainer:extend{
     current_set      = nil,
     current_level    = nil,   -- level shown in navigator (changes as user browses)
     playing_level    = nil,   -- level that was active when settings opened (fixed)
+    playing_set      = nil,   -- set that was active when settings opened (fixed)
     best_moves       = nil,   -- {[set_name] = {[level_num] = moves}}
     furthest_reached = nil,   -- {[set_name] = max_unlocked_level}
     on_play_cb       = nil,   -- called with (set_index, level_num)
     on_skip_cb       = nil,   -- called with (set_index, level_num) when skipping frontier
     width            = nil,
-    height           = nil,
 }
 
 function SettingsWidget:init()
-    self.width  = self.width  or math.floor(Screen:getWidth()  * 0.85)
-    self.height = self.height or math.floor(Screen:getHeight() * 0.75)
+    self.width = self.width or math.floor(Screen:getWidth() * 0.85)
 
     local title_bar = TitleBar:new{
         width         = self.width,
@@ -67,7 +66,8 @@ function SettingsWidget:init()
     local mark         = solved and "✓ " or ""
     local playing      = self.playing_level or self.current_level
     local play_solved  = ((self.best_moves or {})[self.current_set] or {})[playing]
-    local at_frontier  = (playing >= fr) and not play_solved and (playing < total)
+    local at_frontier  = (self.current_set == (self.playing_set or self.current_set))
+                         and (playing >= fr) and not play_solved and (playing < total)
                          and (self.current_level == playing)
 
     local level_nav = ButtonTable:new{
@@ -170,12 +170,12 @@ function SettingsWidget:_refresh()
         current_set      = self.current_set,
         current_level    = self.current_level,
         playing_level    = self.playing_level,
+        playing_set      = self.playing_set,
         best_moves       = self.best_moves,
         furthest_reached = self.furthest_reached,
         on_play_cb       = self.on_play_cb,
         on_skip_cb       = self.on_skip_cb,
         width            = self.width,
-        height           = self.height,
     })
 end
 

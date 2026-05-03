@@ -280,10 +280,9 @@ function Sokoban:_onSolved()
     -- advance furthest_reached so the next level unlocks
     local fr = self.furthest_reached[self.current_set] or 1
     self.furthest_reached[self.current_set] = math.max(fr, math.min(self.current_level + 1, #ls.levels))
-    self:_saveSettings()
 
     -- full refresh so e-ink ghosts clear
-    UIManager:setDirty(self.widget, "ui")
+    UIManager:setDirty(self.widget, "full")
 
     local msg = _("Solved!") .. "\n" ..
         _("Moves: ") .. self.game.moves .. "  " .. _("Pushes: ") .. self.game.pushes
@@ -325,6 +324,7 @@ function Sokoban:openSettings()
         current_set      = self.current_set,
         current_level    = self.current_level,
         playing_level    = self.current_level,
+        playing_set      = self.current_set,
         best_moves       = self.best_moves,
         furthest_reached = self.furthest_reached,
         on_play_cb       = function(set_idx, level_num)

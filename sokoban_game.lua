@@ -129,6 +129,7 @@ function Game:move(dr, dc)
     self.player_c = nc
     self.moves = self.moves + 1
 
+    if #self.history >= 500 then table.remove(self.history, 1) end
     table.insert(self.history, snap)
     return true
 end
@@ -172,25 +173,6 @@ function Game:boxes_on_target()
         end
     end
     return n
-end
-
-function Game:clone()
-    local g = setmetatable({}, Game)
-    g.rows = self.rows
-    g.cols = self.cols
-    g.player_r = self.player_r
-    g.player_c = self.player_c
-    g.moves = self.moves
-    g.pushes = self.pushes
-    g.history = {}
-    g.grid = {}
-    for r = 1, self.rows do
-        g.grid[r] = {}
-        for c = 1, self.cols do
-            g.grid[r][c] = self.grid[r][c]
-        end
-    end
-    return g
 end
 
 -- Self-test when run directly with luajit

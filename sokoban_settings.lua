@@ -15,12 +15,16 @@ local Screen      = Device.screen
 local _           = require("gettext")
 
 local SettingsWidget = InputContainer:extend{
-    level_sets   = nil,   -- list of {name, count}
-    current_set  = nil,
-    current_level = nil,
-    on_play_cb   = nil,   -- called with (set_index, level_num)
-    width        = nil,
-    height       = nil,
+    level_sets       = nil,   -- list of {name, count}
+    current_set      = nil,
+    current_level    = nil,   -- level shown in navigator (changes as user browses)
+    playing_level    = nil,   -- level that was active when settings opened (fixed)
+    best_moves       = nil,   -- {[set_name] = {[level_num] = moves}}
+    furthest_reached = nil,   -- {[set_name] = max_unlocked_level}
+    on_play_cb       = nil,   -- called with (set_index, level_num)
+    on_skip_cb       = nil,   -- called with (set_index, level_num) when skipping frontier
+    width            = nil,
+    height           = nil,
 }
 
 function SettingsWidget:init()
@@ -58,6 +62,13 @@ function SettingsWidget:init()
         if ls.name == self.current_set then total = ls.count; break end
     end
 
+    local fr           = (self.furthest_reached or {})[self.current_set] or 1
+    local solved       = ((self.best_moves or {})[self.current_set] or {})[self.current_level]
+    local mark         = solved and "✓ " or ""
+    local playing      = self.playing_level or self.current_level
+    local play_solved  = ((self.best_moves or {})[self.current_set] or {})[playing]
+    local at_frontier  = (playing >= fr) and not play_solved and (playing < total)
+
     local level_nav = ButtonTable:new{
         width   = self.width - Size.padding.large * 2,
         buttons = {
@@ -72,13 +83,13 @@ function SettingsWidget:init()
                     end,
                 },
                 {
-                    text = tostring(self.current_level) .. " / " .. tostring(total),
+                    text = mark .. tostring(self.current_level) .. " / " .. tostring(total),
                     callback = function() end,
                 },
                 {
                     text = "▶",
                     callback = function()
-                        if self.current_level < total then
+                        if self.current_level < math.min(total, fr) then
                             self.current_level = self.current_level + 1
                             self:_refresh()
                         end
@@ -98,14 +109,16 @@ function SettingsWidget:init()
         buttons = {
             {
                 {
-                    text     = _("Play"),
+                    text     = at_frontier and _("Skip Level") or _("Play"),
                     callback = function()
                         local set_idx = 1
                         for i, ls in ipairs(self.level_sets) do
                             if ls.name == self.current_set then set_idx = i; break end
                         end
                         UIManager:close(self)
-                        if self.on_play_cb then
+                        if at_frontier and self.on_skip_cb then
+                            self.on_skip_cb(set_idx, playing)
+                        elseif self.on_play_cb then
                             self.on_play_cb(set_idx, self.current_level)
                         end
                     end,
@@ -152,12 +165,16 @@ end
 function SettingsWidget:_refresh()
     UIManager:close(self)
     UIManager:show(SettingsWidget:new{
-        level_sets    = self.level_sets,
-        current_set   = self.current_set,
-        current_level = self.current_level,
-        on_play_cb    = self.on_play_cb,
-        width         = self.width,
-        height        = self.height,
+        level_sets       = self.level_sets,
+        current_set      = self.current_set,
+        current_level    = self.current_level,
+        playing_level    = self.playing_level,
+        best_moves       = self.best_moves,
+        furthest_reached = self.furthest_reached,
+        on_play_cb       = self.on_play_cb,
+        on_skip_cb       = self.on_skip_cb,
+        width            = self.width,
+        height           = self.height,
     })
 end
 

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="64"
+   height="64"
+   viewBox="0 0 16.933333 16.933333"
+   version="1.1"
+   id="svg3928"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="target.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview3930"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="5.955465"
+     inkscape:cx="10.242693"
+     inkscape:cy="35.429643"
+     inkscape:window-width="1880"
+     inkscape:window-height="1052"
+     inkscape:window-x="40"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs3925" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       transform="matrix(0.26458333,0,0,0.26458333,-233.89166,-155.575)"
+       id="g3672">
+      <g
+         id="use3670">
+        <path
+           fill="#89a4a6"
+           stroke="none"
+           d="m 910,648 v -2 H 895.95 Q 890,646 890,640.05 V 626 h -2 v 14.05 q 0,7.95 7.95,7.95 H 910 m 32,-22 v 14.05 q 0,5.95 -5.95,5.95 H 922 v 2 h 14.05 q 7.95,0 7.95,-7.95 V 626 h -2 m -5.95,-34 H 922 v 2 h 14.05 q 5.95,0 5.95,5.95 V 614 h 2 V 599.95 Q 944,592 936.05,592 M 910,592 H 895.95 Q 888,592 888,599.95 V 614 h 2 V 599.95 Q 890,594 895.95,594 H 910 Z"
+           id="path4633" />
+        <path
+           fill="#627577"
+           stroke="none"
+           d="M 910,642 H 895.95 Q 894,642 894,640.05 V 626 h -4 v 14.05 q 0,5.95 5.95,5.95 H 910 v -4 m 32,-1.95 V 626 h -4 v 14.05 q 0,1.95 -1.95,1.95 H 922 v 4 h 14.05 q 5.95,0 5.95,-5.95 M 936.05,598 q 1.95,0 1.95,1.95 V 614 h 4 V 599.95 Q 942,594 936.05,594 H 922 v 4 h 14.05 m -40.1,0 H 910 v -4 H 895.95 Q 890,594 890,599.95 V 614 h 4 v -14.05 q 0,-1.95 1.95,-1.95 z"
+           id="path4635" />
+      </g>
+    </g>
+  </g>
+</svg>

@@ -9,22 +9,23 @@ local Game = require("sokoban_game")
 
 local ICON_DIR -- set by init from plugin_path passed by main.lua
 
-local CELL_ICONS = {
-    [Game.WALL]   = "wall",
-    [Game.FLOOR]  = "floor",
-    [Game.TARGET] = "target",
-    [Game.BOX]    = "box",
-    [Game.BOX_ON] = "box_on_target",
-    [Game.PLAYER] = "player",
-    [Game.PLR_ON] = "player_on_target",
+local CELL_LAYERS = {
+    [Game.WALL]   = { "wall" },
+    [Game.FLOOR]  = { "floor" },
+    [Game.TARGET] = { "floor", "target" },
+    [Game.BOX]    = { "floor", "crate" },
+    [Game.BOX_ON] = { "floor", "crate_on_target", "target" },
+    [Game.PLAYER] = { "floor", "player" },
+    [Game.PLR_ON] = { "floor", "player", "target" },
 }
 
 local Board = InputContainer:extend{
-    game        = nil,
-    width       = nil,
-    height      = nil,
-    icon_dir    = nil,
-    on_swipe_cb = nil, -- called with (dr, dc) before move, for main.lua to react
+    game          = nil,
+    width         = nil,
+    height        = nil,
+    icon_dir      = nil,
+    on_swipe_cb   = nil, -- called with (dr, dc) before move, for main.lua to react
+    player_sprite = "player",
 }
 
 function Board:init()
@@ -80,9 +81,19 @@ function Board:paintTo(bb, x, y)
     for r = 1, self.game.rows do
         for c = 1, self.game.cols do
             local cell = self.game.grid[r][c]
-            local icon_name = CELL_ICONS[cell] or "floor"
-            local img = self:_getImage(icon_name)
-            img:paintTo(bb, ox + (c - 1) * cs, oy + (r - 1) * cs)
+            local layers
+            if cell == Game.WALL then
+                local below = self.game.grid[r + 1] and self.game.grid[r + 1][c]
+                layers = { below == Game.WALL and "wall" or "wall_h" }
+            else
+                layers = CELL_LAYERS[cell] or { "floor" }
+            end
+            local px = ox + (c - 1) * cs
+            local py = oy + (r - 1) * cs
+            for _, icon_name in ipairs(layers) do
+                local sprite = (icon_name == "player") and self.player_sprite or icon_name
+                self:_getImage(sprite):paintTo(bb, px, py)
+            end
         end
     end
 end
@@ -94,10 +105,10 @@ end
 function Board:onSwipe(ges)
     local dir = ges.direction
     local dr, dc = 0, 0
-    if     dir == "east"  then dc =  1
-    elseif dir == "west"  then dc = -1
-    elseif dir == "south" then dr =  1
-    elseif dir == "north" then dr = -1
+    if     dir == "east"  then dc =  1; self.player_sprite = "player_right"
+    elseif dir == "west"  then dc = -1; self.player_sprite = "player_left"
+    elseif dir == "south" then dr =  1; self.player_sprite = "player"
+    elseif dir == "north" then dr = -1; self.player_sprite = "player_up"
     else return false
     end
 

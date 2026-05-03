@@ -45,18 +45,37 @@ function Sokoban:_loadSettings()
     if not self.settings then
         self.settings = LuaSettings:open(self.settings_file)
     end
-    self.current_set   = self.settings:readSetting("current_set")   or LEVEL_SETS[1].name
-    self.current_level = self.settings:readSetting("current_level") or 1
-    self.best_moves    = self.settings:readSetting("best_moves")    or {}
-    self.best_pushes   = self.settings:readSetting("best_pushes")   or {}
+    self.current_set      = self.settings:readSetting("current_set")      or LEVEL_SETS[1].name
+    self.current_level    = self.settings:readSetting("current_level")    or 1
+    self.best_moves       = self.settings:readSetting("best_moves")       or {}
+    self.best_pushes      = self.settings:readSetting("best_pushes")      or {}
+    self.furthest_reached = self.settings:readSetting("furthest_reached") or {}
+    -- Ensure furthest_reached is at least consistent with best_moves (handles missing
+    -- or stale data from sessions before progression tracking was added)
+    for _, ls in ipairs(LEVEL_SETS) do
+        local bm = self.best_moves[ls.name] or {}
+        local max_solved = 0
+        for level_num in pairs(bm) do
+            if type(level_num) == "number" and level_num > max_solved then
+                max_solved = level_num
+            end
+        end
+        if max_solved > 0 then
+            local min_fr = math.min(max_solved + 1, #ls.levels)
+            if (self.furthest_reached[ls.name] or 0) < min_fr then
+                self.furthest_reached[ls.name] = min_fr
+            end
+        end
+    end
 end
 
 function Sokoban:_saveSettings()
     if not self.settings then return end
-    self.settings:saveSetting("current_set",   self.current_set)
-    self.settings:saveSetting("current_level", self.current_level)
-    self.settings:saveSetting("best_moves",    self.best_moves)
-    self.settings:saveSetting("best_pushes",   self.best_pushes)
+    self.settings:saveSetting("current_set",      self.current_set)
+    self.settings:saveSetting("current_level",    self.current_level)
+    self.settings:saveSetting("best_moves",       self.best_moves)
+    self.settings:saveSetting("best_pushes",      self.best_pushes)
+    self.settings:saveSetting("furthest_reached", self.furthest_reached)
     self.settings:flush()
 end
 
@@ -116,13 +135,8 @@ function Sokoban:_buildWidget()
     local title_bar = TitleBar:new{
         width          = sw,
         title          = self.current_set .. " #" .. self.current_level,
-        subtitle       = self:_statusText(),
         close_callback = function()
             self:_onClose()
-        end,
-        left_icon              = "appbar.settings",
-        left_icon_tap_callback = function()
-            self:openSettings()
         end,
     }
     local title_h = title_bar:getSize().h
@@ -135,7 +149,7 @@ function Sokoban:_buildWidget()
         game        = game,
         width       = board_w,
         height      = board_h,
-        icon_dir    = self.path .. "/icons",
+        icon_dir    = self.path .. "/tiles",
         on_swipe_cb = function(dr, dc)
             self:_onMove(dr, dc)
         end,
@@ -145,7 +159,7 @@ function Sokoban:_buildWidget()
 
     -- toolbar: undo + level select
     local undo_btn = IconButton:new{
-        icon     = "back.top",
+        icon     = "chevron.left",
         width    = icon_size,
         height   = icon_size,
         callback = function()
@@ -154,28 +168,51 @@ function Sokoban:_buildWidget()
             end
         end,
     }
+    local restart_btn = IconButton:new{
+        icon     = "cre.render.reload",
+        width    = icon_size,
+        height   = icon_size,
+        callback = function() self:_onRestart() end,
+    }
     local sel_btn = IconButton:new{
         icon     = "appbar.settings",
         width    = icon_size,
         height   = icon_size,
-        callback = function()
-            self:openSettings()
-        end,
+        callback = function() self:openSettings() end,
     }
 
-    local toolbar = HorizontalGroup:new{
+    local status_widget = TextWidget:new{
+        text = self:_statusText(),
+        face = Font:getFace("cfont", 16),
+    }
+    self._status_text_widget = status_widget
+
+    local left_toolbar = HorizontalGroup:new{
         align = "center",
         HorizontalSpan:new{ width = Screen:scaleBySize(20) },
         undo_btn,
         HorizontalSpan:new{ width = Screen:scaleBySize(20) },
+        restart_btn,
+        HorizontalSpan:new{ width = Screen:scaleBySize(20) },
+        status_widget,
+    }
+    self._left_toolbar = left_toolbar
+
+    local right_toolbar = HorizontalGroup:new{
+        align = "center",
         sel_btn,
         HorizontalSpan:new{ width = Screen:scaleBySize(20) },
-        TextWidget:new{
-            text = self:_statusText(),
-            face = Font:getFace("cfont", 16),
-        },
     }
-    self._status_text_widget = toolbar[6] -- keep ref for updates
+
+    local flex_w = math.max(0, sw - left_toolbar:getSize().w - right_toolbar:getSize().w)
+
+    local toolbar = HorizontalGroup:new{
+        align = "center",
+        left_toolbar,
+        HorizontalSpan:new{ width = flex_w },
+        right_toolbar,
+    }
+    self._toolbar = toolbar
 
     local content_h = title_h + board_h + icon_size
     local gap = sh - content_h
@@ -217,6 +254,9 @@ function Sokoban:_onMove(dr, dc)
 end
 
 function Sokoban:_refresh()
+    self._status_text_widget:setText(self:_statusText())
+    self._left_toolbar:resetLayout()
+    self._toolbar:resetLayout()
     UIManager:setDirty(self.widget, "ui", self.widget.dimen)
 end
 
@@ -236,6 +276,10 @@ function Sokoban:_onSolved()
     if not prev_p or self.game.pushes < prev_p then
         self.best_pushes[self.current_set][self.current_level] = self.game.pushes
     end
+
+    -- advance furthest_reached so the next level unlocks
+    local fr = self.furthest_reached[self.current_set] or 1
+    self.furthest_reached[self.current_set] = math.max(fr, math.min(self.current_level + 1, #ls.levels))
     self:_saveSettings()
 
     -- full refresh so e-ink ghosts clear
@@ -258,17 +302,36 @@ function Sokoban:_onSolved()
     })
 end
 
+function Sokoban:_onRestart()
+    local ls_idx = self:_setIndex(self.current_set)
+    self:startLevel(ls_idx, self.current_level)
+end
+
+function Sokoban:_onSkip(set_idx, level_num)
+    local ls = LEVEL_SETS[set_idx]
+    local fr = self.furthest_reached[ls.name] or 1
+    self.furthest_reached[ls.name] = math.max(fr, math.min(level_num + 1, #ls.levels))
+    self:_saveSettings()
+    self:startLevel(set_idx, level_num + 1)
+end
+
 function Sokoban:openSettings()
     local sets_info = {}
     for _, ls in ipairs(LEVEL_SETS) do
         table.insert(sets_info, { name = ls.name, count = #ls.levels })
     end
     local w = SettingsWidget:new{
-        level_sets    = sets_info,
-        current_set   = self.current_set,
-        current_level = self.current_level,
-        on_play_cb    = function(set_idx, level_num)
+        level_sets       = sets_info,
+        current_set      = self.current_set,
+        current_level    = self.current_level,
+        playing_level    = self.current_level,
+        best_moves       = self.best_moves,
+        furthest_reached = self.furthest_reached,
+        on_play_cb       = function(set_idx, level_num)
             self:startLevel(set_idx, level_num)
+        end,
+        on_skip_cb       = function(set_idx, level_num)
+            self:_onSkip(set_idx, level_num)
         end,
     }
     UIManager:show(w)

@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Convert a Sokoban level file in "; N" format to a KOReader Lua module.
+"""Convert a Sokoban level file to a KOReader Lua module.
+
+Supported input formats (auto-detected):
+  "; N" format   — header line is "; 1", "; 2", etc.
+  "Level N" format — header line is "Level 1", followed by an optional
+                     quoted title like 'MINICOSMOS 01'.
 
 Usage:
     python3 convert.py Microban.txt
@@ -14,16 +19,44 @@ import re
 import sys
 
 
+def _strip_blank(lines):
+    while lines and lines[0].strip() == "":
+        lines.pop(0)
+    while lines and lines[-1].strip() == "":
+        lines.pop()
+    return lines
+
+
 def parse_levels(text):
-    """Split text on '; N [optional title]' headers and return a list of level strings."""
+    """Auto-detect format and return a list of XSB level strings."""
+    if re.search(r"^;\s*\d+", text, re.MULTILINE):
+        return _parse_semicolon(text)
+    if re.search(r"^Level\s+\d+", text, re.MULTILINE | re.IGNORECASE):
+        return _parse_level_n(text)
+    return []
+
+
+def _parse_semicolon(text):
+    """'; N [optional title]' format."""
     parts = re.split(r"^;\s*\d+[^\n]*\n", text, flags=re.MULTILINE)
     levels = []
     for part in parts[1:]:
+        lines = _strip_blank(part.split("\n"))
+        if lines:
+            levels.append("\n".join(lines))
+    return levels
+
+
+def _parse_level_n(text):
+    """'Level N' format, with an optional quoted title line after the header."""
+    parts = re.split(r"^Level\s+\d+[^\n]*\n", text, flags=re.MULTILINE | re.IGNORECASE)
+    levels = []
+    for part in parts[1:]:
         lines = part.split("\n")
-        while lines and lines[0].strip() == "":
+        # drop optional quoted title line (e.g. 'MINICOSMOS 01')
+        if lines and re.match(r"^\s*'[^']*'\s*$", lines[0]):
             lines.pop(0)
-        while lines and lines[-1].strip() == "":
-            lines.pop()
+        lines = _strip_blank(lines)
         if lines:
             levels.append("\n".join(lines))
     return levels

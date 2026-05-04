@@ -1,4 +1,4 @@
--- Microban by David W. Skinner — public domain
+-- Microban by David W. Skinner
 -- Source: http://www.abelmartin.com/rj/sokobanJS/Skinner/David%20W.%20Skinner%20-%20Sokoban.htm
 local M = {}
 M.name   = "Microban"

@@ -26,6 +26,9 @@ local SettingsWidget = require("sokoban_settings")
 
 local LEVEL_SETS = {
     require("levels/microban"),
+    require("levels/minicosmos"),
+    require("levels/microcosmos"),
+    require("levels/original-plus-extra"),
     require("levels/sasquatch"),
 }
 

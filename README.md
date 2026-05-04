@@ -2,7 +2,12 @@
 
 A Sokoban puzzle game plugin for [KOReader](https://github.com/koreader/koreader).
 
-Comes with two level sets by David W. Skinner: **Microban** (155 levels) and **Sasquatch** (50 levels).
+Comes with the following level sets:
+- **Original+Extra levels** (97 levels) by Thinking Rabbit: the level set from the original Sokoban game ([link](http://Sokoban-jd.blogspot.dk/2014/05/the-original-collection.html))
+- **Microban** (155 levels) by David W. Skinner: a beginner-friendly level set ([link](http://www.sneezingtiger.com/sokoban/levelpics/microbanImages.html))
+- **Sasquatch** (50 levels) by David W. Skinner ([link](http://www.sneezingtiger.com/sokoban/levelpics/sasquatchImages.html)).
+- **Microcosmos** (36 levels) by Aymeric du Peloux ([link](http://www.sneezingtiger.com/sokoban/levelpics/microcosmosImages.html))
+- **Minicosmos** (40 levels) by Aymeric du Peloux ([link](http://www.sneezingtiger.com/sokoban/levels/microcosmosText.html))
 
 ![Screenshot](sokoban_screenshot.png)
 
@@ -19,11 +24,14 @@ Comes with two level sets by David W. Skinner: **Microban** (155 levels) and **S
 | Action | Gesture |
 |--------|---------|
 | Move player | Swipe in any direction |
-| Undo last move | Tap the ↩ button in the toolbar |
+| Undo last move | Tap the < button in the toolbar |
+| Restart level  | Tap the *Refresh* button |
 | Open level select | Tap the ⚙ button in the toolbar or title bar |
 | Quit | Tap the ✕ in the title bar |
 
-Push all boxes onto the target squares (dots) to solve the level. The move and push counts are shown in the toolbar. After solving, you can proceed to the next level or return to the menu.
+Push all boxes onto the target squares to solve the level. You can push only one box and you cannot pull boxes.
+
+The move and push counts are shown in the toolbar. After solving, you can proceed to the next level or return to the menu.
 
 ## Level select
 
@@ -32,6 +40,8 @@ The level select dialog lets you:
 - Choose a **level set** — tap its name to switch (resets to level 1 of that set)
 - Navigate levels with the **◀ / ▶** buttons
 - Tap **Play** to start
+
+If you are stuck on the last level, you can skip it and come back later.
 
 Best scores (moves and pushes) are saved per level and persist across sessions.
 
@@ -86,5 +96,7 @@ python3 levels/convert.py levels/MySet.txt --author "Author Name"
 
 ## Credits
 
-- **Microban** and **Sasquatch** level sets by David W. Skinner — public domain
-- Tile graphics by [Kenney](https://kenney.nl) - Public domain -CCO license
+- **Microban** and **Sasquatch** level sets by David W. Skinner - public domain
+- **Microcosm** and **Minicosm** level sets by Aymeric du Peloux
+- **Original level set** by Thinking Rabbit
+- Tile graphics by [Kenney](https://kenney.nl) - Public domain - CCO license

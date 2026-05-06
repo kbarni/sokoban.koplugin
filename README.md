@@ -1,13 +1,16 @@
 # sokoban.koplugin
 
-A Sokoban puzzle game plugin for [KOReader](https://github.com/koreader/koreader).
+A port of the Sokoban puzzle game (from 1981) for [KOReader](https://github.com/koreader/koreader). 
 
 Comes with the following level sets:
+
 - **Original+Extra levels** (97 levels) by Thinking Rabbit: the level set from the original Sokoban game ([link](http://Sokoban-jd.blogspot.dk/2014/05/the-original-collection.html))
 - **Microban** (155 levels) by David W. Skinner: a beginner-friendly level set ([link](http://www.sneezingtiger.com/sokoban/levelpics/microbanImages.html))
 - **Sasquatch** (50 levels) by David W. Skinner ([link](http://www.sneezingtiger.com/sokoban/levelpics/sasquatchImages.html)).
 - **Microcosmos** (36 levels) by Aymeric du Peloux ([link](http://www.sneezingtiger.com/sokoban/levelpics/microcosmosImages.html))
 - **Minicosmos** (40 levels) by Aymeric du Peloux ([link](http://www.sneezingtiger.com/sokoban/levels/microcosmosText.html))
+
+**WARNING!** Extremely addictive!
 
 ![Screenshot](sokoban_screenshot.png)
 
@@ -29,7 +32,9 @@ Comes with the following level sets:
 | Open level select | Tap the ⚙ button in the toolbar or title bar |
 | Quit | Tap the ✕ in the title bar |
 
-Push all boxes onto the target squares to solve the level. You can push only one box and you cannot pull boxes.
+Push all boxes onto the target squares to solve the level. Boxes can only be pushed, never pulled, and only one box can be pushed at a time. 
+
+The main challenge is planning moves correctly to avoid causing a deadlock, a situation where a box or the player becomes permanently trapped, making the puzzle unsolvable.
 
 The move and push counts are shown in the toolbar. After solving, you can proceed to the next level or return to the menu.
 
@@ -96,6 +101,7 @@ python3 levels/convert.py levels/MySet.txt --author "Author Name"
 
 ## Credits
 
+- Original game by **Hiroyuki Imabayashi** (Thinking Rabbit)
 - **Microban** and **Sasquatch** level sets by David W. Skinner - public domain
 - **Microcosm** and **Minicosm** level sets by Aymeric du Peloux
 - **Original level set** by Thinking Rabbit

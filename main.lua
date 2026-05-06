@@ -50,6 +50,7 @@ function Sokoban:_loadSettings()
     end
     self.current_set      = self.settings:readSetting("current_set")      or LEVEL_SETS[1].name
     self.current_level    = self.settings:readSetting("current_level")    or 1
+    self.last_played_levels = self.settings:readSetting("last_played_levels") or {}
     self.best_moves       = self.settings:readSetting("best_moves")       or {}
     self.best_pushes      = self.settings:readSetting("best_pushes")      or {}
     self.furthest_reached = self.settings:readSetting("furthest_reached") or {}
@@ -76,6 +77,7 @@ function Sokoban:_saveSettings()
     if not self.settings then return end
     self.settings:saveSetting("current_set",      self.current_set)
     self.settings:saveSetting("current_level",    self.current_level)
+    self.settings:saveSetting("last_played_levels", self.last_played_levels)
     self.settings:saveSetting("best_moves",       self.best_moves)
     self.settings:saveSetting("best_pushes",      self.best_pushes)
     self.settings:saveSetting("furthest_reached", self.furthest_reached)
@@ -111,6 +113,7 @@ function Sokoban:startLevel(set_idx, level_num)
 
     self.current_set   = ls.name
     self.current_level = level_num
+    self.last_played_levels[self.current_set] = level_num
     self:_saveSettings()
 
     self.game = Game.from_xsb(ls.levels[level_num])
@@ -328,6 +331,7 @@ function Sokoban:openSettings()
         current_level    = self.current_level,
         playing_level    = self.current_level,
         playing_set      = self.current_set,
+        last_played_levels = self.last_played_levels,
         best_moves       = self.best_moves,
         furthest_reached = self.furthest_reached,
         on_play_cb       = function(set_idx, level_num)

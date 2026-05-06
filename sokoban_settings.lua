@@ -22,6 +22,7 @@ local SettingsWidget = InputContainer:extend{
     playing_set      = nil,   -- set that was active when settings opened (fixed)
     best_moves       = nil,   -- {[set_name] = {[level_num] = moves}}
     furthest_reached = nil,   -- {[set_name] = max_unlocked_level}
+    last_played_levels = nil,  -- {[set_name] = level_num}
     on_play_cb       = nil,   -- called with (set_index, level_num)
     on_skip_cb       = nil,   -- called with (set_index, level_num) when skipping frontier
     width            = nil,
@@ -47,7 +48,7 @@ function SettingsWidget:init()
                 callback = function()
                     if self.current_set ~= ls.name then
                         self.current_set   = ls.name
-                        self.current_level = 1
+                        self.current_level = (self.last_played_levels or {})[ls.name] or 1
                         self:_refresh()
                     end
                 end,
@@ -173,6 +174,7 @@ function SettingsWidget:_refresh()
         playing_set      = self.playing_set,
         best_moves       = self.best_moves,
         furthest_reached = self.furthest_reached,
+        last_played_levels = self.last_played_levels,
         on_play_cb       = self.on_play_cb,
         on_skip_cb       = self.on_skip_cb,
         width            = self.width,
